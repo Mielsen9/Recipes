@@ -7,6 +7,7 @@ import * as styles from "./RecipesPage.module.scss";
 interface RecipesData {
 	meals: Meal[];
 }
+
 export interface Meal {
 	idMeal: string;
 	strMeal: string;
@@ -14,6 +15,7 @@ export interface Meal {
 	strCategory: string;
 	strArea: string;
 }
+
 const RecipesPage = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -25,31 +27,28 @@ const RecipesPage = () => {
 
 	// Перевірка на наявність data та meals
 	const meals = data?.meals || [];
-	const totalPages = Math.ceil(meals.length / itemsPerPage);
+
+	// Фільтрація рецептів за категорією
+	const filteredRecipes = useMemo(() => {
+		if (selectedCategory === "All") {
+			return meals; // Якщо категорія "All", то відображаємо всі рецепти
+		}
+		return meals.filter((meal) => meal.strCategory === selectedCategory);
+	}, [meals, selectedCategory]);
+
+	// Обчислюємо кількість сторінок для пагінації
+	const totalPages = Math.ceil(filteredRecipes.length / itemsPerPage);
 
 	// Розраховуємо індекси для поточної сторінки
 	const currentRecipes = useMemo(() => {
 		const start = (currentPage - 1) * itemsPerPage;
 		const end = start + itemsPerPage;
-		return meals.slice(start, end);
-	}, [meals, currentPage]);
-
-	// Фільтрація рецептів за категорією
-	const filteredRecipes = useMemo(() => {
-		if (!data) return [];
-
-		if (selectedCategory === "All") {
-			return data.meals;
-		}
-
-		return data.meals.filter((meal) => meal.strCategory === selectedCategory);
-	}, [data, selectedCategory]);
-
+		return filteredRecipes.slice(start, end);
+	}, [filteredRecipes, currentPage]);
 
 	if (isLoading) return <p>Loading...</p>;
 	if (error) return <p>Error loading recipes</p>;
 
-	// Фільтрація, пагінація та інші функції тут...
 	return (
 		<div className={styles.container}>
 			<h1>Recipes</h1>
@@ -73,11 +72,11 @@ const RecipesPage = () => {
 			{/* Відображення рецептів */}
 			<div className={styles.grid}>
 				{currentRecipes?.map((meal) => (
-					<RecipeCard key={meal.idMeal} meal={meal}/>
+					<RecipeCard key={meal.idMeal} meal={meal} />
 				))}
 			</div>
 
-			{meals.length > 0 && (
+			{filteredRecipes.length > 0 && (
 				<Pagination
 					currentPage={currentPage}
 					totalPages={totalPages}
