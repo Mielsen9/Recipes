@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import * as styles from "./RecipeCard.module.scss";
 import {Meal} from "@/pages/RecipesPage/RecipesPage";
+import AddToFavoritesButton from "@/components/AddToFavoritesButton/AddToFavoritesButton";
 interface RecipeCardProps {
 	meal: Meal;
 }
@@ -10,6 +11,7 @@ const RecipeCard = ({ meal }: RecipeCardProps) => {
 			<img src={meal.strMealThumb} alt={meal.strMeal} className={styles.image} />
 			<h3>{meal.strMeal}</h3>
 			<p>{meal.strCategory} | {meal.strArea}</p>
+			<AddToFavoritesButton recipe={meal} />
 			<Link to={`/recipe/${meal.idMeal}`} className={styles.link}>View Recipe</Link>
 		</div>
 	);

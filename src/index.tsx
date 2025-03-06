@@ -5,6 +5,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom"; // Ім�
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; // Імпортуємо react-query
 import RecipesPage from "@/pages/RecipesPage/RecipesPage"; // Ваші компоненти
 import RecipePage from "@/pages/RecipePage/RecipePage";
+import App from "@/App";
+import SelectedRecipesPage from "@/pages/SelectedRecipesPage/SelectedRecipesPage";
 
 // Створюємо інстанс QueryClient для використання в додатку
 const queryClient = new QueryClient();
@@ -22,15 +24,17 @@ const container = createRoot(root);
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <RecipesPage />, // Сторінка з рецептами
+        element: <App/>,
+        children: [
+            { path: "/", element: <RecipesPage /> },
+            { path: "/recipe/:idMeal", element: <RecipePage /> },
+            { path: "/selected", element: <SelectedRecipesPage /> },
+        ],
     },
-    {
-        path: "/recipe/:idMeal",
-        element: <RecipePage /> // Сторінка рецепту
-    }
 ],{
     basename: '/Recipes', // Шлях до репозиторію на GitHub
-});
+}
+);
 
 // Підключаємо маршрути до компонента RouterProvider
 container.render(
