@@ -17,7 +17,7 @@ export interface Meal {
 const RecipesPage = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [selectedCategory, setSelectedCategory] = useState<string>("All");
-	const itemsPerPage = 6; // Скільки рецептів відображати на сторінці
+	const itemsPerPage = 8; // Скільки рецептів відображати на сторінці
 	const { data, isLoading, error } = useQuery<RecipesData>({
 		queryKey: ["recipes"],
 		queryFn: fetchRecipes,
