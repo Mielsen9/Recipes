@@ -4,6 +4,20 @@ import { fetchRecipes } from "@/services/api";
 import RecipeCard from "@/components/RecipeCard/RecipeCard";
 import Pagination from "@/components/Pagination/Pagination";
 import * as styles from "./RecipesPage.module.scss";
+import { useDebounce } from 'use-debounce';
+
+interface RecipesData {
+	meals: Meal[];
+}
+
+export interface Meal {
+	idMeal: string;
+	strMeal: string;
+	strMealThumb: string;
+	strCategory: string;
+	strArea: string;
+}
+
 interface RecipesData {
 	meals: Meal[];
 }
@@ -19,22 +33,38 @@ export interface Meal {
 const RecipesPage = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [selectedCategory, setSelectedCategory] = useState<string>("All");
+	const [searchTerm, setSearchTerm] = useState<string>("");
 	const itemsPerPage = 8; // Скільки рецептів відображати на сторінці
+
+	// Використовуємо debounce для searchTerm з затримкою в 500ms
+	const [debouncedSearchTerm] = useDebounce(searchTerm, 500); // 500ms debounce
+
+	// Використовуємо query з debouncedSearchTerm
 	const { data, isLoading, error } = useQuery<RecipesData>({
-		queryKey: ["recipes"],
-		queryFn: fetchRecipes,
+		queryKey: ["recipes", debouncedSearchTerm],
+		queryFn: () => fetchRecipes(debouncedSearchTerm),
+		enabled: debouncedSearchTerm !== "",  // Зупинити запит, коли немає пошукового запиту
 	});
 
 	// Перевірка на наявність data та meals
 	const meals = data?.meals || [];
 
-	// Фільтрація рецептів за категорією
+	// Фільтрація рецептів за категорією та пошуковим запитом
 	const filteredRecipes = useMemo(() => {
-		if (selectedCategory === "All") {
-			return meals; // Якщо категорія "All", то відображаємо всі рецепти
+		let filtered = meals;
+
+		if (selectedCategory !== "All") {
+			filtered = filtered.filter((meal) => meal.strCategory === selectedCategory);
 		}
-		return meals.filter((meal) => meal.strCategory === selectedCategory);
-	}, [meals, selectedCategory]);
+
+		if (debouncedSearchTerm) {
+			filtered = filtered.filter((meal) =>
+				meal.strMeal.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+			);
+		}
+
+		return filtered;
+	}, [meals, selectedCategory, debouncedSearchTerm]);
 
 	// Обчислюємо кількість сторінок для пагінації
 	const totalPages = Math.ceil(filteredRecipes.length / itemsPerPage);
@@ -52,6 +82,17 @@ const RecipesPage = () => {
 	return (
 		<div className={styles.container}>
 			<h1>Recipes</h1>
+
+			{/* Пошуковий інпут */}
+			<div className={styles.search}>
+				<input
+					type="text"
+					placeholder="Search for a recipe..."
+					value={searchTerm}
+					onChange={(e) => setSearchTerm(e.target.value)}
+					className={styles.searchInput}
+				/>
+			</div>
 
 			{/* Форма для фільтрації за категорією */}
 			<div className={styles.filter}>
