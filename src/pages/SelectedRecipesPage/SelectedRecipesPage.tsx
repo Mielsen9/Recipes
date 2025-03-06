@@ -12,7 +12,9 @@ interface Recipe {
 	strMeal: string;
 	strMealThumb: string;
 	strInstructions: string;
-	ingredients?: Ingredient[]; // Додаємо `?` для запобігання помилкам
+	// Інші властивості
+	[key: `strIngredient${number}`]: string | null;
+	[key: `strMeasure${number}`]: string | null;
 }
 
 const SelectedRecipesPage = () => {
@@ -33,7 +35,19 @@ const SelectedRecipesPage = () => {
 
 	const getTotalIngredients = () => {
 		return selectedRecipes.reduce((total, recipe) => {
-			return total + (recipe.ingredients ? recipe.ingredients.length : 0);
+			// Створюємо масив інгредієнтів, поєднуючи strIngredient та strMeasure
+			const ingredients = [];
+			for (let i = 1; i <= 20; i++) {
+				const ingredient = recipe[`strIngredient${i}` as keyof Recipe]; // Динамічне звертання до властивості
+				const measure = recipe[`strMeasure${i}` as keyof Recipe];
+				if (ingredient && ingredient !== "") {
+					ingredients.push({
+						strIngredient: ingredient,
+						strMeasure: measure || "", // Якщо вимір відсутній, залишаємо порожнім
+					});
+				}
+			}
+			return total + ingredients.length;
 		}, 0);
 	};
 
@@ -71,13 +85,24 @@ const SelectedRecipesPage = () => {
 					<div className={styles.ingredients}>
 						<h3>Total Ingredients: {getTotalIngredients()}</h3>
 						<ul>
-							{selectedRecipes
-								.flatMap((recipe) => recipe.ingredients || []) // Додаємо `|| []`, щоб уникнути `undefined`
-								.map((ingredient, index) => (
-									<li key={index}>
-										{ingredient.strMeasure} {ingredient.strIngredient}
-									</li>
-								))}
+							{selectedRecipes.flatMap((recipe) => {
+								const ingredients: Ingredient[] = [];
+								for (let i = 1; i <= 20; i++) {
+									const ingredient = recipe[`strIngredient${i}` as keyof Recipe];
+									const measure = recipe[`strMeasure${i}` as keyof Recipe];
+									if (ingredient && ingredient !== "") {
+										ingredients.push({
+											strIngredient: ingredient,
+											strMeasure: measure || "", // Якщо вимір відсутній, залишаємо порожнім
+										});
+									}
+								}
+								return ingredients;
+							}).map((ingredient, index) => (
+								<li key={index}>
+									{ingredient.strMeasure} {ingredient.strIngredient}
+								</li>
+							))}
 						</ul>
 					</div>
 
