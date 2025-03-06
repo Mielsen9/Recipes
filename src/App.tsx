@@ -1,18 +1,13 @@
-import React from "react";
 
 
-// Type
 
-// App
-export const App = () => {
-    // State
 
-    // Logic
-
-    // Return
+const App = () => {
     return (
         <div>
 
         </div>
     );
 };
+
+export default App;
