@@ -17,10 +17,22 @@ export interface Meal {
 const RecipesPage = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [selectedCategory, setSelectedCategory] = useState<string>("All");
+	const itemsPerPage = 6; // Скільки рецептів відображати на сторінці
 	const { data, isLoading, error } = useQuery<RecipesData>({
 		queryKey: ["recipes"],
 		queryFn: fetchRecipes,
 	});
+
+	// Перевірка на наявність data та meals
+	const meals = data?.meals || [];
+	const totalPages = Math.ceil(meals.length / itemsPerPage);
+
+	// Розраховуємо індекси для поточної сторінки
+	const currentRecipes = useMemo(() => {
+		const start = (currentPage - 1) * itemsPerPage;
+		const end = start + itemsPerPage;
+		return meals.slice(start, end);
+	}, [meals, currentPage]);
 
 	// Фільтрація рецептів за категорією
 	const filteredRecipes = useMemo(() => {
@@ -60,12 +72,18 @@ const RecipesPage = () => {
 
 			{/* Відображення рецептів */}
 			<div className={styles.grid}>
-				{filteredRecipes.map((meal) => (
-					<RecipeCard key={meal.idMeal} meal={meal} />
+				{currentRecipes?.map((meal) => (
+					<RecipeCard key={meal.idMeal} meal={meal}/>
 				))}
 			</div>
 
-			<Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={60}/>
+			{meals.length > 0 && (
+				<Pagination
+					currentPage={currentPage}
+					totalPages={totalPages}
+					setCurrentPage={setCurrentPage}
+				/>
+			)}
 		</div>
 	);
 };
