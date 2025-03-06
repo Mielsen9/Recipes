@@ -31,9 +31,10 @@ const router = createBrowserRouter([
             { path: "/selected", element: <SelectedRecipesPage /> },
         ],
     },
-],{
-    basename: '/Recipes', // Шлях до репозиторію на GitHub
-}
+],
+//     {
+//     basename: '/Recipes', // Шлях до репозиторію на GitHub
+// }
 );
 
 // Підключаємо маршрути до компонента RouterProvider
