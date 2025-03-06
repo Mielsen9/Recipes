@@ -34,16 +34,17 @@ const RecipesPage = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [selectedCategory, setSelectedCategory] = useState<string>("All");
 	const [searchTerm, setSearchTerm] = useState<string>("");
+	const [isSearchFocused, setIsSearchFocused] = useState(false); // Стан фокусу пошуку
 	const itemsPerPage = 8; // Скільки рецептів відображати на сторінці
 
 	// Використовуємо debounce для searchTerm з затримкою в 500ms
-	const [debouncedSearchTerm] = useDebounce(searchTerm, 500); // 500ms debounce
+	const [debouncedSearchTerm] = useDebounce(searchTerm, 1000); // 500ms debounce
 
-	// Використовуємо query з debouncedSearchTerm
+	// Використовуємо query з debouncedSearchTerm тільки якщо пошук у фокусі
 	const { data, isLoading, error } = useQuery<RecipesData>({
 		queryKey: ["recipes", debouncedSearchTerm],
 		queryFn: () => fetchRecipes(debouncedSearchTerm),
-		enabled: debouncedSearchTerm !== "",  // Зупинити запит, коли немає пошукового запиту
+		  // Запит тільки, коли пошук у фокусі і є текст
 	});
 
 	// Перевірка на наявність data та meals
@@ -57,14 +58,14 @@ const RecipesPage = () => {
 			filtered = filtered.filter((meal) => meal.strCategory === selectedCategory);
 		}
 
-		if (debouncedSearchTerm) {
+		if (isSearchFocused && debouncedSearchTerm) {
 			filtered = filtered.filter((meal) =>
 				meal.strMeal.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
 			);
 		}
 
 		return filtered;
-	}, [meals, selectedCategory, debouncedSearchTerm]);
+	}, [meals, selectedCategory, debouncedSearchTerm, isSearchFocused]);
 
 	// Обчислюємо кількість сторінок для пагінації
 	const totalPages = Math.ceil(filteredRecipes.length / itemsPerPage);
@@ -90,6 +91,8 @@ const RecipesPage = () => {
 					placeholder="Search for a recipe..."
 					value={searchTerm}
 					onChange={(e) => setSearchTerm(e.target.value)}
+					onFocus={() => setIsSearchFocused(true)}  // При фокусі на полі
+					onBlur={() => setIsSearchFocused(false)}  // При втраті фокусу
 					className={styles.searchInput}
 				/>
 			</div>
