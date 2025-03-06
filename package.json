@@ -13,6 +13,7 @@
     "test": "jest",
     "test:watch": "jest --watch"
   },
+  "homepage": "https://mielsen9.github.io/Recipes/",
   "browserslist": {
     "production": [
       "> 1%",

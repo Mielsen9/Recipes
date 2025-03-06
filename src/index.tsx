@@ -28,7 +28,9 @@ const router = createBrowserRouter([
         path: "/recipe/:idMeal",
         element: <RecipePage /> // Сторінка рецепту
     }
-]);
+],{
+    basename: '/Recipes', // Шлях до репозиторію на GitHub
+});
 
 // Підключаємо маршрути до компонента RouterProvider
 container.render(
