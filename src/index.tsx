@@ -32,9 +32,9 @@ const router = createBrowserRouter([
             ],
         },
     ],
-    // {
-    //     basename: '/Recipes', // Шлях до репозиторію на GitHub
-    // }
+    {
+        basename: '/Recipes', // Шлях до репозиторію на GitHub
+    }
 );
 
 // Підключаємо Redux, QueryClient та маршрути до додатку
