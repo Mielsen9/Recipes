@@ -1,45 +1,30 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { useParams } from 'react-router-dom';
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import { fetchRecipeById } from '@/services/recipeService';
 import * as styles from './RecipePage.module.scss';
 
-interface Recipe {
-	idMeal: string;
-	strMeal: string;
-	strCategory: string;
-	strArea: string;
-	strInstructions: string;
-	strMealThumb: string;
-	strIngredient1: string;
-	strIngredient2: string;
-	strIngredient3: string;
-	strIngredient4?: string;
-	strIngredient5?: string;
-	strIngredient6?: string;
-	strIngredient7?: string;
-	strIngredient8?: string;
-	strIngredient9?: string;
-	strIngredient10?: string;
-	// Можна додавати й інші інгредієнти, якщо потрібно
-}
+import {useAppDispatch, useAppSelector} from "@/state/hook";
+import {fetchMealByIdThunk} from "@/services/fetchMealById";
+import {selectMealById, selectMealByIdError, selectMealByIdStatus} from "@/state/slices/recipesSlice";
 
 const RecipePage: React.FC = () => {
-	const { idMeal } = useParams<{ idMeal: string }>(); // Типізація параметрів URL
-	// Використовуємо useQuery для отримання рецепт
-	const { data, error, isLoading }: UseQueryResult<Recipe, Error> = useQuery(
-		{
-			queryKey: ['recipe', idMeal], // Правильний формат для queryKey
-			queryFn: () => fetchRecipeById(idMeal!), // Функція для отримання даних
+	const { idMeal } = useParams<{ idMeal: string }>();
+	const dispatch = useAppDispatch();
+	const mealById = useAppSelector(selectMealById);
+	const status = useAppSelector(selectMealByIdStatus);
+	const error = useAppSelector(selectMealByIdError);
+
+	useEffect(() => {
+		if (idMeal) {
+			dispatch(fetchMealByIdThunk(idMeal));
 		}
-	);
+	}, [dispatch, idMeal]);
 
 	// Обробка станів
-	if (isLoading) return <div>Loading...</div>;
-	if (error instanceof Error) return <div>Error: {error.message}</div>;
+	if (status === "loading") return <div>Loading...</div>;
+	if (status === "failed") return <div>Error: {error}</div>;
 
 	// Якщо дані рецепту завантажені, показуємо їх
-	if (data) {
+	if (mealById) {
 		const {
 			strMeal,
 			strCategory,
@@ -51,7 +36,7 @@ const RecipePage: React.FC = () => {
 			strIngredient3,
 			strIngredient4,
 			strIngredient5,
-		} = data;
+		} = mealById;
 
 		return (
 			<div className={styles['recipe-page']}>

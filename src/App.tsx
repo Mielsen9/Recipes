@@ -1,5 +1,5 @@
-
 import React from "react";
+import * as s from "./App.module.scss";
 import { Outlet } from "react-router-dom";
 import GoToSelectedRecipesButton from "@/components/GoToSelectedRecipesButton/GoToSelectedRecipesButton";
 

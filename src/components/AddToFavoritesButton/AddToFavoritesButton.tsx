@@ -1,39 +1,21 @@
-import React, { useState, useEffect } from "react";
-
-interface Recipe {
-	idMeal: string;
-	strMeal: string;
-}
+import {FC} from "react";
+import {useAppDispatch, useAppSelector} from "@/state/hook";
+import {addSelectedMeals, removeSelectedMeals, selectSelectedMeals} from "@/state/slices/recipesSlice";
 
 interface AddToFavoritesButtonProps {
-	recipe: Recipe;
-	onUpdate?: (selectedRecipes: Recipe[]) => void;
+	meal: Meal;
 }
 
-const AddToFavoritesButton: React.FC<AddToFavoritesButtonProps> = ({ recipe, onUpdate }) => {
-	const [isSelected, setIsSelected] = useState(false);
-
-	useEffect(() => {
-		const storedRecipes = localStorage.getItem("selectedRecipes");
-		const selectedRecipes: Recipe[] = storedRecipes ? JSON.parse(storedRecipes) : [];
-		setIsSelected(selectedRecipes.some((r) => r.idMeal === recipe.idMeal));
-	}, [recipe.idMeal]);
+const AddToFavoritesButton: FC<AddToFavoritesButtonProps> = ({ meal}) => {
+	const dispatch = useAppDispatch();
+	const selectedMeals = useAppSelector(selectSelectedMeals);
+	const isSelected = selectedMeals.some((r) => r.idMeal === meal.idMeal);
 
 	const toggleFavorite = () => {
-		const storedRecipes = localStorage.getItem("selectedRecipes");
-		let selectedRecipes: Recipe[] = storedRecipes ? JSON.parse(storedRecipes) : [];
-
 		if (isSelected) {
-			selectedRecipes = selectedRecipes.filter((r) => r.idMeal !== recipe.idMeal);
+			dispatch(removeSelectedMeals(meal.idMeal));
 		} else {
-			selectedRecipes.push(recipe);
-		}
-
-		localStorage.setItem("selectedRecipes", JSON.stringify(selectedRecipes));
-		setIsSelected(!isSelected);
-
-		if (onUpdate) {
-			onUpdate(selectedRecipes);
+			dispatch(addSelectedMeals(meal));
 		}
 	};
 

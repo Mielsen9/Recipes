@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import * as styles from "./SelectedRecipesPage.module.scss";
+
+import {removeSelectedMeals, selectSelectedMeals} from '@/state/slices/recipesSlice';
+import {useAppDispatch, useAppSelector} from "@/state/hook";
 
 interface Ingredient {
 	strIngredient: string;
@@ -12,38 +14,24 @@ interface Recipe {
 	strMeal: string;
 	strMealThumb: string;
 	strInstructions: string;
-	// Інші властивості
 	[key: `strIngredient${number}`]: string | null;
 	[key: `strMeasure${number}`]: string | null;
 }
 
 const SelectedRecipesPage = () => {
-	const [selectedRecipes, setSelectedRecipes] = useState<Recipe[]>(() => {
-		const savedRecipes = localStorage.getItem("selectedRecipes");
-		try {
-			return savedRecipes ? JSON.parse(savedRecipes) : [];
-		} catch (error) {
-			console.error("Помилка при парсингу JSON:", error);
-			return [];
-		}
-	});
-
-	// Функція для оновлення списку вибраних рецептів
-	const updateSelectedRecipes = (recipes: Recipe[]) => {
-		setSelectedRecipes(recipes);
-	};
+	const dispatch = useAppDispatch();
+	const selectedMeals = useAppSelector(selectSelectedMeals);
 
 	const getTotalIngredients = () => {
-		return selectedRecipes.reduce((total, recipe) => {
-			// Створюємо масив інгредієнтів, поєднуючи strIngredient та strMeasure
+		return selectedMeals.reduce((total: any, recipe: any) => {
 			const ingredients = [];
 			for (let i = 1; i <= 20; i++) {
-				const ingredient = recipe[`strIngredient${i}` as keyof Recipe]; // Динамічне звертання до властивості
+				const ingredient = recipe[`strIngredient${i}` as keyof Recipe];
 				const measure = recipe[`strMeasure${i}` as keyof Recipe];
 				if (ingredient && ingredient !== "") {
 					ingredients.push({
 						strIngredient: ingredient,
-						strMeasure: measure || "", // Якщо вимір відсутній, залишаємо порожнім
+						strMeasure: measure || "",
 					});
 				}
 			}
@@ -51,27 +39,21 @@ const SelectedRecipesPage = () => {
 		}, 0);
 	};
 
-	useEffect(() => {
-		localStorage.setItem("selectedRecipes", JSON.stringify(selectedRecipes));
-	}, [selectedRecipes]);
-
 	return (
 		<div className={styles.container}>
 			<h1>Selected Recipes</h1>
-			{selectedRecipes.length === 0 ? (
+			{selectedMeals.length === 0 ? (
 				<p>No recipes selected</p>
 			) : (
 				<>
 					<div className={styles.recipesList}>
-						{selectedRecipes.map((recipe) => (
+						{selectedMeals.map((recipe: any) => (
 							<div key={recipe.idMeal} className={styles.recipeCard}>
 								<img src={recipe.strMealThumb} alt={recipe.strMeal} className={styles.recipeImage} />
 								<h3>{recipe.strMeal}</h3>
 								<button
 									className={styles.removeButton}
-									onClick={() =>
-										setSelectedRecipes(selectedRecipes.filter((item) => item.idMeal !== recipe.idMeal))
-									}
+									onClick={() => dispatch(removeSelectedMeals(recipe.idMeal))}
 								>
 									Remove
 								</button>
@@ -85,7 +67,7 @@ const SelectedRecipesPage = () => {
 					<div className={styles.ingredients}>
 						<h3>Total Ingredients: {getTotalIngredients()}</h3>
 						<ul>
-							{selectedRecipes.flatMap((recipe) => {
+							{selectedMeals.flatMap((recipe: any) => {
 								const ingredients: Ingredient[] = [];
 								for (let i = 1; i <= 20; i++) {
 									const ingredient = recipe[`strIngredient${i}` as keyof Recipe];
@@ -93,12 +75,12 @@ const SelectedRecipesPage = () => {
 									if (ingredient && ingredient !== "") {
 										ingredients.push({
 											strIngredient: ingredient,
-											strMeasure: measure || "", // Якщо вимір відсутній, залишаємо порожнім
+											strMeasure: measure || "",
 										});
 									}
 								}
 								return ingredients;
-							}).map((ingredient, index) => (
+							}).map((ingredient: Ingredient, index: any) => (
 								<li key={index}>
 									{ingredient.strMeasure} {ingredient.strIngredient}
 								</li>
@@ -108,7 +90,7 @@ const SelectedRecipesPage = () => {
 
 					<div className={styles.instructions}>
 						<h3>Instructions:</h3>
-						{selectedRecipes.map((recipe) => (
+						{selectedMeals.map((recipe: any) => (
 							<div key={recipe.idMeal}>
 								<h4>{recipe.strMeal}</h4>
 								<p>{recipe.strInstructions}</p>
