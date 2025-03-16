@@ -4,8 +4,8 @@ import "@/scss/style.scss";
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import RecipesPage from "@/pages/RecipesPage/RecipesPage";
-import RecipePage from "@/pages/RecipePage/RecipePage";
-import SelectedRecipesPage from "@/pages/SelectedRecipesPage/SelectedRecipesPage";
+// import RecipePage from "@/pages/RecipePage/RecipePage";
+// import SelectedRecipesPage from "@/pages/SelectedRecipesPage/SelectedRecipesPage";
 
 // Імпортуємо Redux та створений store
 import { Provider } from 'react-redux';
@@ -27,14 +27,14 @@ const router = createBrowserRouter([
             element: <App/>,
             children: [
                 { path: "/", element: <RecipesPage /> },
-                { path: "/recipe/:idMeal", element: <RecipePage /> },
-                { path: "/selected", element: <SelectedRecipesPage /> },
+                // { path: "/recipe/:idMeal", element: <RecipePage /> },
+                // { path: "/selected", element: <SelectedRecipesPage /> },
             ],
         },
     ],
-    {
-        basename: '/Recipes', // Шлях до репозиторію на GitHub
-    }
+    // {
+    //     basename: '/Recipes', // Шлях до репозиторію на GitHub
+    // }
 );
 
 // Підключаємо Redux, QueryClient та маршрути до додатку

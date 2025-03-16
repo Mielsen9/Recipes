@@ -1,54 +1,56 @@
-import React from "react";
-import * as styles from "./Pagination.module.scss";
-
-interface PaginationProps {
-	currentPage: number;
-	totalPages: number;
-	setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
-}
-
-const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, setCurrentPage }) => {
-	const handlePageChange = (page: number) => {
-		if (page >= 1 && page <= totalPages) {
-			setCurrentPage(page);
-		}
-	};
-
-	const pages = [];
-	if (totalPages > 7) {
-		// Створюємо сторінки з обмеженням до 7 сторінок
-		for (let i = 1; i <= 7; i++) {
-			pages.push(i);
-		}
-		if (currentPage > 7) {
-			pages.push("...");
-		}
-		pages.push(totalPages);
-	} else {
-		for (let i = 1; i <= totalPages; i++) {
-			pages.push(i);
-		}
-	}
-
-	return (
-		<div className={styles.pagination}>
-			<button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-				&lt;
-			</button>
-			{pages.map((page, index) => (
-				<button
-					key={index}
-					onClick={() => handlePageChange(Number(page))}
-					className={currentPage === Number(page) ? styles.active : ""}
-				>
-					{page}
-				</button>
-			))}
-			<button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-				&gt;
-			</button>
-		</div>
-	);
-};
-
-export default Pagination;
+// import React from "react";
+// import * as styles from "./Pagination.module.scss";
+// import {DOTS, usePagination} from "@/hook/usePagination";
+// import { selectPagination, setCurrentPage, setItemsPerPage} from "@/state/slices/paginationSlice";
+// import {useAppDispatch, useAppSelector} from "@/state/hook";
+//
+// interface PaginationProps {
+// 	totalCount: number;
+// 	itemsPerPage: number;
+// }
+//
+// const Pagination: React.FC<PaginationProps> = ({ totalCount, itemsPerPage }) => {
+// 	const dispatch = useAppDispatch();
+// 	const {currentPage} = useAppSelector(selectPagination);
+// 	// Використовуємо хук usePagination
+// 	const paginationRange = usePagination({
+// 		totalCount,
+// 		pageSize: itemsPerPage,
+// 		siblingCount: 1,
+// 		currentPage: currentPage,
+// 	});
+//
+// 	dispatch(setItemsPerPage(itemsPerPage))
+//
+// 	// Якщо пагінація не потрібна (коли сторінок дуже мало)
+// 	if (!paginationRange || paginationRange.length <= 1) {
+// 		return null;
+// 	}
+//
+// 	// Обробник для зміни поточної сторінки
+// 	const handlePageChange = (currentPage: number) => {
+// 		dispatch(setCurrentPage(currentPage))
+// 	};
+//
+// 	return (
+// 		<div className={styles.pagination}>
+// 			{paginationRange.map((page, idx) => {
+// 				if (page === DOTS) {
+// 					return <span key={idx} className={styles.dots}>{DOTS}</span>;
+// 				}
+//
+// 				return (
+// 					<button
+// 						key={idx}
+// 						onClick={() => handlePageChange(Number(page))}
+// 						className={`${styles.pageNumber} ${page === currentPage ? styles.active : ""}`}
+// 					>
+// 						{page}
+// 					</button>
+// 				);
+// 			})}
+// 		</div>
+// 	);
+// };
+//
+// export default Pagination;

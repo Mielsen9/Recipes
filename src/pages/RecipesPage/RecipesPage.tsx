@@ -1,113 +1,66 @@
-import {ChangeEvent, useEffect, useState} from "react";
-import {fetchMeals} from "@/services/fetchMeals";
-import RecipeCard from "@/components/RecipeCard/RecipeCard";
-import * as styles from "./RecipesPage.module.scss";
-import { useDebounce } from 'use-debounce';
 
-import {useAppDispatch, useAppSelector} from "@/state/hook";
-import {selectMeals, selectMealsError, selectMealsStatus} from "@/state/slices/recipesSlice";
+import {useSearchQuery} from "@/hook/useSearchQuery";
+import {useCategoryFilter} from "@/hook/useCategoryFilter";
+import {usePagination} from "@/hook/usePagination";
+import {useFilteredItems} from "@/hook/seFilteredItems";
+
+const items = [
+	{ id: 1, name: "Apple", category: "fruit" },
+	{ id: 2, name: "Banana", category: "fruit" },
+	{ id: 3, name: "Carrot", category: "vegetable" },
+	{ id: 4, name: "Broccoli", category: "vegetable" },
+	{ id: 5, name: "Grapes", category: "fruit" },
+	{ id: 6, name: "Lemon", category: "fruit" },
+];
+
+const itemsPerPage = 2;
 
 const RecipesPage = () => {
-	const dispatch = useAppDispatch();
-	const meals = useAppSelector(selectMeals);
-	const status = useAppSelector(selectMealsStatus);
-	const error = useAppSelector(selectMealsError);
+	const { searchQuery, setSearchQuery } = useSearchQuery();
+	const { category, setCategory } = useCategoryFilter();
+	const { currentPage, setPage } = usePagination(itemsPerPage);
 
-	const [searchTerm, setSearchTerm] = useState<string>("");
-
-	// Затримка пошукового терміну
-	const [debouncedSearchTerm] = useDebounce(searchTerm, 1000);
-
-	useEffect(() => {
-		if (debouncedSearchTerm) {
-			dispatch(fetchMeals(debouncedSearchTerm));
-		}
-	}, [debouncedSearchTerm, dispatch]);
-
-	const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
-		setSearchTerm(e.target.value);
-	};
-
-
-	// const filteredRecipes = useMemo(() => {
-	// 	let filtered = meals;
-	//
-	// 	if (selectedCategory !== 'All') {
-	// 		filtered = filtered.filter((meal) => meal.strCategory === selectedCategory);
-	// 	}
-	//
-	// 	if (isSearchFocused && debouncedSearchTerm) {
-	// 		filtered = filtered.filter((meal) =>
-	// 			meal.strMeal.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-	// 		);
-	// 	}
-	//
-	// 	return filtered;
-	// }, [meals, selectedCategory, debouncedSearchTerm, isSearchFocused]);
-	//
-	// const totalPages = Math.ceil(filteredRecipes.length / itemsPerPage);
-	//
-	// const currentRecipes = useMemo(() => {
-	// 	const start = (currentPage - 1) * itemsPerPage;
-	// 	const end = start + itemsPerPage;
-	// 	return filteredRecipes.slice(start, end);
-	// }, [filteredRecipes, currentPage]);
-	// Return
-	if (status === "loading") {
-		return <div>Loading...</div>;
-	}
-
-	if (status === "failed") {
-		return <div>Error: {error}</div>;
-	}
+	const { filteredItems, paginatedItems } = useFilteredItems(items, searchQuery, category, currentPage, itemsPerPage);
 
 	return (
-		<div className={styles.container}>
-			<h1>Recipes</h1>
+		<div>
+			<input
+				type="text"
+				value={searchQuery}
+				onChange={(e) => setSearchQuery(e.target.value)}
+				placeholder="Search..."
+			/>
 
-			<div className={styles.search}>
-				<input
-					type="text"
-					value={searchTerm}
-					onChange={handleSearchChange}
-					placeholder="Search for meals"
-					className={styles.searchInput}
-				/>
-			</div>
+			<select value={category} onChange={(e) => setCategory(e.target.value)}>
+				<option value="">All Categories</option>
+				<option value="fruit">Fruits</option>
+				<option value="vegetable">Vegetables</option>
+			</select>
 
-			{/*<div className={styles.filter}>*/}
-			{/*	<label htmlFor="category">Filter by Category:</label>*/}
-			{/*	<select*/}
-			{/*		id="category"*/}
-			{/*		value={selectedCategory}*/}
-			{/*		onChange={(e) => dispatch(setCategory(e.target.value))}*/}
-			{/*	>*/}
-			{/*		<option value="All">All</option>*/}
-			{/*		<option value="Chicken">Chicken</option>*/}
-			{/*		<option value="Beef">Beef</option>*/}
-			{/*		<option value="Vegetarian">Vegetarian</option>*/}
-			{/*	</select>*/}
-			{/*</div>*/}
-
-			<div className={styles.grid}>
-				{meals && meals.length > 0 ? (
-					meals.map((meal) => (
-						<RecipeCard key={meal.idMeal} meal={meal} />
-					))
+			<ul>
+				{paginatedItems.length > 0 ? (
+					paginatedItems.map((item) => <li key={item.id}>{item.name}</li>)
 				) : (
-					<p>No meals found</p>
+					<p>No results found</p>
 				)}
-			</div>
+			</ul>
 
-			{/*{filteredRecipes.length > 0 && (*/}
-			{/*	<Pagination*/}
-			{/*		currentPage={currentPage}*/}
-			{/*		totalPages={totalPages}*/}
-			{/*		setCurrentPage={(page) => dispatch(setCurrentPage(page))}*/}
-			{/*	/>*/}
-			{/*)}*/}
+			<div>
+				<button onClick={() => setPage(currentPage - 1)} disabled={currentPage === 1}>
+					Previous
+				</button>
+				<span>
+          Page {currentPage} of {Math.ceil(filteredItems.length / itemsPerPage)}
+        </span>
+				<button
+					onClick={() => setPage(currentPage + 1)}
+					disabled={currentPage >= Math.ceil(filteredItems.length / itemsPerPage)}
+				>
+					Next
+				</button>
+			</div>
 		</div>
 	);
-};
+}
 
 export default RecipesPage;
