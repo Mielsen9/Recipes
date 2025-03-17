@@ -1,5 +1,5 @@
 export function useFilteredItems(
-	items: { id: number; name: string; category: string }[], // Додано `id`
+	items: Meal[], // Додано `id`
 	searchQuery: string,
 	category: string,
 	currentPage: number,
@@ -7,8 +7,8 @@ export function useFilteredItems(
 ) {
 	const filteredItems = items.filter(
 		(item) =>
-			item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-			(category ? item.category === category : true)
+			item.strMeal.toLowerCase().includes(searchQuery.toLowerCase()) &&
+			(category ? item.strCategory === category : true)
 	);
 
 	const startIndex = (currentPage - 1) * itemsPerPage;
