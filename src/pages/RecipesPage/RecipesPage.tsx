@@ -2,7 +2,12 @@
 import {useSearchQuery} from "@/hook/useSearchQuery";
 import {useCategoryFilter} from "@/hook/useCategoryFilter";
 import {usePagination} from "@/hook/usePagination";
-import {useFilteredItems} from "@/hook/seFilteredItems";
+import {useFilteredItems} from "@/hook/useFilteredItems";
+import {useAppDispatch, useAppSelector} from "@/state/hook";
+import {selectMeals} from "@/state/slices/recipesSlice";
+import { useEffect } from "react";
+import {fetchMeals} from "@/services/fetchMeals";
+import RecipeCard from "@/components/RecipeCard/RecipeCard";
 
 const items = [
 	{ id: 1, name: "Apple", category: "fruit" },
@@ -13,14 +18,18 @@ const items = [
 	{ id: 6, name: "Lemon", category: "fruit" },
 ];
 
-const itemsPerPage = 2;
+const itemsPerPage = 1;
 
 const RecipesPage = () => {
+	const dispatch = useAppDispatch();
+	const meal = useAppSelector(selectMeals);
 	const { searchQuery, setSearchQuery } = useSearchQuery();
 	const { category, setCategory } = useCategoryFilter();
 	const { currentPage, setPage } = usePagination(itemsPerPage);
-
-	const { filteredItems, paginatedItems } = useFilteredItems(items, searchQuery, category, currentPage, itemsPerPage);
+	useEffect(() => {
+			dispatch(fetchMeals(searchQuery));
+	}, []);
+	const { filteredItems, paginatedItems } = useFilteredItems(meal, searchQuery, category, currentPage, itemsPerPage);
 
 	return (
 		<div>
@@ -39,7 +48,7 @@ const RecipesPage = () => {
 
 			<ul>
 				{paginatedItems.length > 0 ? (
-					paginatedItems.map((item) => <li key={item.id}>{item.name}</li>)
+					paginatedItems.map((meal) => <li><RecipeCard key={meal.idMeal} meal={meal} /></li>)
 				) : (
 					<p>No results found</p>
 				)}
