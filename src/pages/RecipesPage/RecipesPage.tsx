@@ -1,6 +1,4 @@
-
-import {useSearchQuery} from "@/hook/useSearchQuery";
-import {useCategoryFilter} from "@/hook/useCategoryFilter";
+import {useCategoryFilter} from "@/features/categoryFilter/hook/useCategoryFilter";
 import {usePagination} from "@/hook/usePagination";
 import {useFilteredItems} from "@/hook/useFilteredItems";
 import {useAppDispatch, useAppSelector} from "@/state/hook";
@@ -8,22 +6,15 @@ import {selectMeals} from "@/state/slices/recipesSlice";
 import { useEffect } from "react";
 import {fetchMeals} from "@/services/fetchMeals";
 import RecipeCard from "@/components/RecipeCard/RecipeCard";
+import {SearchInput, selectQuery} from "@/features/search";
+import * as s from "./RecipesPage.module.scss";
 
-const items = [
-	{ id: 1, name: "Apple", category: "fruit" },
-	{ id: 2, name: "Banana", category: "fruit" },
-	{ id: 3, name: "Carrot", category: "vegetable" },
-	{ id: 4, name: "Broccoli", category: "vegetable" },
-	{ id: 5, name: "Grapes", category: "fruit" },
-	{ id: 6, name: "Lemon", category: "fruit" },
-];
-
-const itemsPerPage = 1;
+const itemsPerPage = 4;
 
 const RecipesPage = () => {
-	const dispatch = useAppDispatch();
 	const meal = useAppSelector(selectMeals);
-	const { searchQuery, setSearchQuery } = useSearchQuery();
+	const searchQuery  = useAppSelector(selectQuery);
+	const dispatch = useAppDispatch();
 	const { category, setCategory } = useCategoryFilter();
 	const { currentPage, setPage } = usePagination(itemsPerPage);
 	useEffect(() => {
@@ -32,13 +23,8 @@ const RecipesPage = () => {
 	const { filteredItems, paginatedItems } = useFilteredItems(meal, searchQuery, category, currentPage, itemsPerPage);
 
 	return (
-		<div>
-			<input
-				type="text"
-				value={searchQuery}
-				onChange={(e) => setSearchQuery(e.target.value)}
-				placeholder="Search..."
-			/>
+		<div className={s.container}>
+			<SearchInput/>
 
 			<select value={category} onChange={(e) => setCategory(e.target.value)}>
 				<option value="">All Categories</option>
@@ -46,7 +32,7 @@ const RecipesPage = () => {
 				<option value="vegetable">Vegetables</option>
 			</select>
 
-			<ul>
+			<ul className={s.grid}>
 				{paginatedItems.length > 0 ? (
 					paginatedItems.map((meal) => <li><RecipeCard key={meal.idMeal} meal={meal} /></li>)
 				) : (

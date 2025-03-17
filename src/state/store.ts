@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
-import searchReducer from './slices/searchSlice';
+import earchReducer from './slices/earchSlice';
 import recipeSlice from "./slices/recipesSlice";
+import searchSlice from "@/features/search/model/searchSlice";
 
 export const store = configureStore({
 	reducer: {
-		search: searchReducer,
-		recipes: recipeSlice
+		earch: earchReducer,
+		recipes: recipeSlice,
+		search: searchSlice,
 	},
 });
 

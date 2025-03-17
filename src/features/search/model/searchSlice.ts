@@ -1,0 +1,26 @@
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {RootState} from "@/state/store";
+
+interface SearchState {
+	query: string;
+}
+
+const initialState: SearchState = {
+	query: "",
+};
+
+const searchSlice = createSlice({
+	name: "search",
+	initialState,
+	reducers: {
+		setQuery(state, action: PayloadAction<string>) {
+			state.query = action.payload;
+		},
+	}
+});
+
+export const {setQuery} = searchSlice.actions;
+// selectQuery
+export const selectQuery = (state: RootState) => state.search.query;
+
+export default searchSlice.reducer;
