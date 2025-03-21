@@ -1,59 +1,33 @@
-import {useCategoryFilter} from "@/features/categoryFilter/hook/useCategoryFilter";
-import {usePagination} from "@/hook/usePagination";
-import {useFilteredItems} from "@/hook/useFilteredItems";
-import {useAppDispatch, useAppSelector} from "@/state/hook";
-import {selectMeals} from "@/state/slices/recipesSlice";
-import { useEffect } from "react";
-import {fetchMeals} from "@/services/fetchMeals";
-import RecipeCard from "@/components/RecipeCard/RecipeCard";
-import {SearchInput, selectQuery} from "@/features/search";
+import React, {useEffect} from "react";
 import * as s from "./RecipesPage.module.scss";
+import {selectQuery} from "@/features/search";
+import {MealsCardsSmall} from "@/widgets/MealsCardsSmall/MealsCardsSmall";
+import {useAppDispatch, useAppSelector} from "@/App/state/hook";
+import {fetchMeals, selectMeals} from "@/features/getMeals";
+import {selectCategory} from "@/features/categoryFilter";
+import {useFilteredItems} from "@/shared/hook/useFilteredItems";
+import {SearchAndFilter} from "@/widgets/SerchAndFilter/SearchAndFilter";
 
 const itemsPerPage = 4;
 
 const RecipesPage = () => {
-	const meal = useAppSelector(selectMeals);
-	const searchQuery  = useAppSelector(selectQuery);
 	const dispatch = useAppDispatch();
-	const { category, setCategory } = useCategoryFilter();
-	const { currentPage, setPage } = usePagination(itemsPerPage);
-	useEffect(() => {
-			dispatch(fetchMeals(searchQuery));
-	}, []);
-	const { filteredItems, paginatedItems } = useFilteredItems(meal, searchQuery, category, currentPage, itemsPerPage);
+	const { meals, status, error } = useAppSelector(selectMeals);
+	const search  = useAppSelector(selectQuery);
+	const category  = useAppSelector(selectCategory);
+	const filteredItems = useFilteredItems({ meals, search, category });
 
+	useEffect(() => {
+		dispatch(fetchMeals(search));
+	}, []);
+	// Return
 	return (
 		<div className={s.container}>
-			<SearchInput/>
-
-			<select value={category} onChange={(e) => setCategory(e.target.value)}>
-				<option value="">All Categories</option>
-				<option value="fruit">Fruits</option>
-				<option value="vegetable">Vegetables</option>
-			</select>
-
-			<ul className={s.grid}>
-				{paginatedItems.length > 0 ? (
-					paginatedItems.map((meal) => <li><RecipeCard key={meal.idMeal} meal={meal} /></li>)
-				) : (
-					<p>No results found</p>
-				)}
-			</ul>
-
-			<div>
-				<button onClick={() => setPage(currentPage - 1)} disabled={currentPage === 1}>
-					Previous
-				</button>
-				<span>
-          Page {currentPage} of {Math.ceil(filteredItems.length / itemsPerPage)}
-        </span>
-				<button
-					onClick={() => setPage(currentPage + 1)}
-					disabled={currentPage >= Math.ceil(filteredItems.length / itemsPerPage)}
-				>
-					Next
-				</button>
-			</div>
+			<SearchAndFilter/>
+			<MealsCardsSmall status={status}
+			                 error={error}
+			                 filteredItems={filteredItems}
+			                 itemsPerPage={itemsPerPage}/>
 		</div>
 	);
 }

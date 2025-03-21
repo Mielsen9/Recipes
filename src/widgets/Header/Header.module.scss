@@ -1,0 +1,12 @@
+@use "@/App/scss/utils/function" as *;
+.conteiner {
+  padding: 10px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #007bff;
+}
+.headerTitle {
+  font-size: ad(50, 20);
+  color: white;
+}

@@ -1,0 +1,3 @@
+interface SelectedState {
+	selectedMeals: Meal[],
+}
