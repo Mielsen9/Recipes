@@ -1,10 +1,7 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import * as s from "./MealCard.module.scss"
 import { useParams } from 'react-router-dom';
-
-import {useAppDispatch, useAppSelector} from "@/App/state/hook";
-import {fetchMealByIdThunk} from "@/features/getMeal";
-import {selectMealById} from "@/features/getMeal";
+import {useGetMeal} from "@/features/getMeal";
 import {useFilteredEntries} from  "@/shared/hook/useFilteredEntries"
 import {MealCardUi} from "@/entities/MealCardUi";
 // Type
@@ -14,19 +11,15 @@ type PropsType = {
 // MealCard
 export const MealCard: React.FC<PropsType> = React.memo((p) => {
 	const { idMeal } = useParams<{ idMeal: string }>();
-	const dispatch = useAppDispatch();
-	const { mealById, status, error } = useAppSelector(selectMealById);
+	if (!idMeal) {
+		return <div>Invalid meal ID</div>;
+	}
+	const { data: mealById, isLoading, error } = useGetMeal(idMeal);
 	const ingredients = useFilteredEntries(mealById || [], "strIngredient")
 
-	useEffect(() => {
-		if (idMeal) {
-			dispatch(fetchMealByIdThunk(idMeal));
-		}
-	}, [dispatch, idMeal]);
-
 	// Обробка станів
-	if (status === "loading") return <div>Loading...</div>;
-	if (status === "failed") return <div>Error: {error}</div>;
+	if (isLoading) return <div>Loading...</div>;
+	if (error) return <div>Error: {error.message}</div>;
 	if (mealById) {
 		// Return
 		return (

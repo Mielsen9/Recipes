@@ -8,8 +8,8 @@ import {useAppSelector} from "@/App/state/hook";
 import Pagination from "@/features/pagination/ui/Pagination";
 // Type
 type PropsType = {
-	status?:  "idle" | "loading" | "succeeded" | "failed",
-	error?: string | null,
+	status?:  boolean | undefined,
+	error?:  Error | null,
 	filteredItems: Meal[],
 	itemsPerPage: number
 };
@@ -19,8 +19,8 @@ export const MealsCardsSmall: React.FC<PropsType> = React.memo((p) => {
 	const currentPage = useAppSelector(selectCurrentPage);
 	const paginatedItems = usePaginationData({currentPage, itemsPerPage, filteredItems});
 	// Return
-	if (p.status === "loading") return <div>Loading...</div>;
-	if (p.status === "failed") return <div>Error: {p.error}</div>;
+	if (p.status) return <div>Loading...</div>;
+	if (p.error) return <div>Error: {p.error.message}</div>;
 	if (paginatedItems) {
 		return (
 			<div>

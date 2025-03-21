@@ -1,4 +1,4 @@
-export {fetchMealByIdThunk} from "@/features/getMeal/api/fetchMealById";
-export {selectMealById} from "@/features/getMeal/model/mealCardSlice";
+export {fetchMealById} from "./api/fetchMealById";
+export {useGetMeal} from "./model/useGetMeal";
 
 

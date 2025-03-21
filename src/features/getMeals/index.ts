@@ -1,3 +1,3 @@
-export {fetchMeals} from "@/features/getMeals/api/fetchMeals";
-export {selectMeals} from "@/features/getMeals/model/mealsSlice";
+export {fetchMeals} from "./api/fetchMeals";
+export {useGetMeals} from "./model/getMeals";
 
