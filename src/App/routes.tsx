@@ -16,7 +16,7 @@ export const router = createBrowserRouter([
 			],
 		},
 	],
-	// {
-	//     basename: '/Recipes', // Шлях до репозиторію на GitHub
-	// }
+	{
+	    basename: '/Recipes', // Шлях до репозиторію на GitHub
+	}
 );
